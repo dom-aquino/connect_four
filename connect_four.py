@@ -12,10 +12,9 @@ from pygame.locals import (
 COLOR_BLUE = (0, 0, 205)
 COLOR_RED = (255, 0, 0)
 COLOR_WHITE = (255, 255, 255)
+COLOR_BLACK = (0, 0, 0)
 
-# Primary Screen
-screen = pygame.display.set_mode([500, 550])
-screen.fill(COLOR_WHITE)
+screen = pygame.display.set_mode([570, 550])
 
 # for point in range(0, 501, 50):
 #     pygame.draw.line(surface, (0, 255, 255), (point, 0), (point, 500))
@@ -24,17 +23,38 @@ screen.fill(COLOR_WHITE)
 #     pygame.draw.line(surface, (0, 255, 255), (0, point), (500, point))
 
 class GameBoard():
-    def __init__(self):
-        self.draw_game_board()
-        pygame.display.flip()
-
     def draw_game_board(self):
-        pygame.draw.rect(screen, COLOR_BLUE, pygame.Rect(25, 80, 450, 450))
-        for y_axis in range(130, 500, 70):
-            for x_axis in range(75, 480, 70):
-                pygame.draw.circle(screen, COLOR_WHITE, (x_axis, y_axis), 30)
+        screen.fill(COLOR_WHITE)
+        pygame.draw.rect(screen, COLOR_BLUE,
+                         pygame.Rect(25, 80, 520, 450))
+
+        for y_axis in range(130, 510, 70):
+            for x_axis in range(75, 510, 70):
+                pygame.draw.circle(screen, COLOR_WHITE,
+                                   (x_axis, y_axis), 30)
+
+class Player(pygame.sprite.Sprite):
+    def __init__(self):
+        super(Player, self).__init__()
+        self.circle = pygame.Surface((75, 25))
+        self.circle.fill(COLOR_BLACK)
+        self.rect = self.circle.get_rect()
+
+    def update(self, pressed_keys):
+        if pressed_keys[K_LEFT]:
+            self.rect.move_ip(-25, 0)
+        if pressed_keys[K_RIGHT]:
+            self.rect.move_ip(25, 0)
+
+        if self.rect.left < 0:
+            self.rect.left = 0
+        if self.rect.right > 530:
+            self.rect.right = 500
 
 connect_four = GameBoard()
+player = Player()
+
+clock = pygame.time.Clock()
 
 running = True
 
@@ -49,7 +69,16 @@ while running:
                 print('Right key is pressed')
             elif event.key == K_RETURN:
                 print('Return key is pressed')
+
+    pressed_keys = pygame.key.get_pressed()
+    player.update(pressed_keys)
+
+    connect_four.draw_game_board()
+
+    screen.blit(player.circle, player.rect)
     pygame.display.flip()
+
+    clock.tick(40)
 
 pygame.quit()
     
